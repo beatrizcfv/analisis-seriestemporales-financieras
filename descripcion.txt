@@ -12,8 +12,9 @@ Buscamos ciclos ocultos en sus frecuencias constituyentes. Filtrar el ruido apli
 cortar las frecuencias muy altas mediante un filtro de paso bajo y aplicar la transformada inversa para obtener la serie temporal suavizada.
 
 
-
+Siguientes pasos
 Filtro de Fourier: Intenta hacer una función que ponga a cero las frecuencias altas en yf_fft y luego usa scipy.fft.ifft para reconstruir una señal "limpia" del precio.
+El siguiente paso natural si quisieras avanzar sería usar esta señal limpia para construir una regla de decisión o cruzarla con la volatilidad.
 
 Análisis de Ventana Móvil (STFT): Como los ciclos financieros cambian con el tiempo, investiga la Short-Time Fourier Transform (STFT) o las Wavelets, que te permiten ver 
 cómo cambian las frecuencias a lo largo del tiempo.
