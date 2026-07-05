@@ -1,0 +1,22 @@
+Análisis de series temporales financieras. Datos de yfinance
+    Calcular retornos, volatilidad, autocorrelación, test ADF de estacionariedad.
+
+Las series de tiempo suelen ser ruidosas y no estacionarias. Queremos encontrar ciclos/limpiar el ruido.
+
+Retorno: los precios de cierre no son estacionarios. Usar retorno logarítmico (estabilizan la varianza).
+Volatilidad: desviación estándar de los retornos. Mide el riesgo o variabilidad del activo en un periodo.
+Autocorrelación: relación de la serie con ella misma en el pasado. Si es cercana a 0, el pasado no predice el futuro inmediato.
+ADF: p-value < 0.05, rechazamos hipótesis nula de raíz unitaria, requisito para el modelo predictivo.
+
+Buscamos ciclos ocultos en sus frecuencias constituyentes. Filtrar el ruido aplicando Fourier para pasar la serie al dominio de la frecuencia,
+cortar las frecuencias muy altas mediante un filtro de paso bajo y aplicar la transformada inversa para obtener la serie temporal suavizada.
+
+
+
+Filtro de Fourier: Intenta hacer una función que ponga a cero las frecuencias altas en yf_fft y luego usa scipy.fft.ifft para reconstruir una señal "limpia" del precio.
+
+Análisis de Ventana Móvil (STFT): Como los ciclos financieros cambian con el tiempo, investiga la Short-Time Fourier Transform (STFT) o las Wavelets, que te permiten ver 
+cómo cambian las frecuencias a lo largo del tiempo.
+
+Modelado Predictivo: Usa los componentes principales de Fourier o la volatilidad calculada como variables de entrada (features) para un modelo de Machine Learning (como 
+XGBoost o una red LSTM) que intente predecir la dirección del mercado al día siguiente

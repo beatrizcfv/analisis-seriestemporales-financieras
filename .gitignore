@@ -1,0 +1,12 @@
+# Ignorar carpetas de entornos virtuales
+.venv/
+env/
+venv/
+ENV/
+
+# Ignorar carpetas ocultas de Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Ignorar datos (si descargas CSVs grandes, es mejor no subirlos a GitHub)
+*.csv
+*.xlsx
