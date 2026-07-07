@@ -1,4 +1,4 @@
-# Características, entrenamiento y evaluación del modelo predictivo
+# Feature engineering, training and evaluation of the predictive model.
 
 import numpy as np
 import pandas as pd
@@ -6,9 +6,9 @@ from sklearn.metrics import accuracy_score, classification_report
 from xgboost import XGBClassifier
 
 def feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    """ Crea una matriz de características y el objetivo binario.
+    """ Assemble the feature matrix and binary target.
 
-    Objetivo: 1 si el retorno logarítmico es positivo, 0 si no.
+    Target: 1 if next day's log return is positive, 0 otherwise.
     """
     features = pd.DataFrame(index=df.index)
     features["Volatility"] = df["Volatility"].squeeze()
@@ -23,10 +23,10 @@ def feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def chronological_split(features: pd.DataFrame, train_fraction: float = 0.8):
-    """ Separa características/objetivo cronológicamente para evitar fuga de datos.
+    """ Split features/target chronologically to avoid data leakage.
 
-    Un train/test aleatorio infiltraría información futura en entrenamiento, que no
-    es válido para datos de series temporales.
+    A random train/test split would leak future information into
+    training, which is invalid for time series data.
     """
     feature_cols = [c for c in features.columns if c != 'Target']
     X, y = features[feature_cols], features['Target']

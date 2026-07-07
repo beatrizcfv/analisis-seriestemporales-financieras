@@ -1,15 +1,15 @@
-# Retorno, volatilidad y características estacionarias
+# Return, volatility and stationarity features.
 
 import numpy as np
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
 
 def add_returns_and_volatility(df: pd.DataFrame, price_col: str = 'Close', window: int = 21) -> pd.DataFrame:
-    """ Añade rendimientos logarítmicos y volatilidad continua a un DataFrame de precios.
+    """ Add log returns and rolling volatility to a price DataFrame.
 
-    Se utilizan retornos logarítmicos en lugar de precios brutos porque se estabilizan
-    varianza y generalmente están más cerca de la estacionaria, que es una
-    requisito para la mayoría de los modelos de series temporales y ML.
+    Log returns are used instead of raw prices because they stabilize
+    variance and are generally closer to stationary, which is a
+    requirement for most time-series and ML models.
     """
     df = df.copy()
     df['Returns'] = np.log(df[price_col] / df[price_col].shift(1))
@@ -20,10 +20,10 @@ def add_returns_and_volatility(df: pd.DataFrame, price_col: str = 'Close', windo
 
 
 def adf_test(series: pd.Series, label: str = "") -> float:
-    """ Realiza el test de Dickey-Fuller Aumentado y devuelve el p-valor.
+    """Run an Augmented Dickey-Fuller test and return the p-value.
 
-    p-valor < 0.05 nos ayuda a rechazar la hipótesis nula de la raíz de la unidad,
-    es decir, podemos tratar la serie como estacionaria
+    p-value < 0.05 lets us reject the null hypothesis of a unit root,
+    i.e. the series can be treated as stationary.
     """
     result = adfuller(series.dropna())
     p_value = result[1]

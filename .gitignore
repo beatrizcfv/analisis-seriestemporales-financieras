@@ -10,3 +10,10 @@ ENV/
 # Ignorar datos (si descargas CSVs grandes, es mejor no subirlos a GitHub)
 *.csv
 *.xlsx
+
+# Generated plots
+output/
+
+# Python cache
+__pycache__/
+*.pyc

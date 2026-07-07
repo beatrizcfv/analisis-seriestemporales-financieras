@@ -1,11 +1,11 @@
-# Análisis de dominio de frecuencia de la serie de retorno (FFT)
+# Frequency-domain analysis of return series (FFT).
 
 import numpy as np
 import pandas as pd
 from scipy.fft import fft, fftfreq, ifft
 
 def power_spectrum(returns: pd.Series):
-    """ Calcula el espectro de una potencia unilateral de una serie de retorno mediante FFT. """
+    """ Compute the one-sided power spectrum of a return series via FFT. """
     n = len(returns)
     values = returns.values
 
@@ -18,11 +18,10 @@ def power_spectrum(returns: pd.Series):
 
 
 def low_pass_filter(price_series: pd.Series, keep_fraction: float = 0.05) -> pd.Series:
-    """ Elimina el ruido de una serie de precios igualando a 0 los componentes de FFT de alta
-    frecuencia.
+    """ Denoise a price series by zeroing out high-frequency FFT components.
 
-    Mantiene el 'keep_fraction' más bajo de frecuencias y reconstruye la señal con IFFT, 
-    filtrando el ruido de mercado de alta frecuencia.
+    Keeps the lowest 'keep_fraction' of frequencies and reconstructs the
+    signal with the inverse FFT, filtering out high-frequency market noise.
     """
     clean_series = price_series.dropna()
     n = len(clean_series)
@@ -40,5 +39,5 @@ def low_pass_filter(price_series: pd.Series, keep_fraction: float = 0.05) -> pd.
     reconstructed = np.real(ifft(filtered_spectrum))
     result = pd.Series(reconstructed, index=clean_series.index)
 
-    # Realinea con el índice origial y rellena el espacio de los bordes
+    # Re-align with the original index and fill edge gaps
     return result.reindex(price_series.index).ffill().bfill()
