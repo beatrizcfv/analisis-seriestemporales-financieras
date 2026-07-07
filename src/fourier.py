@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy.fft import fft, fftfreq, ifft
 
+
 def power_spectrum(returns: pd.Series):
     """ Compute the one-sided power spectrum of a return series via FFT. """
     n = len(returns)

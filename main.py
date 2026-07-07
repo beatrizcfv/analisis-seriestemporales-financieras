@@ -1,7 +1,9 @@
 """
-Descargas datos de precio, funciones de volatilidad/retorno, comprobaciones de
-estacionariedad, aplica filtrado de ruido basado en Fourier y análisis STFT. Entrena
-un modelo XGBoost para predecir la dirección del precio al día siguiente.
+End-to-end pipeline.
+
+Downloads price data, engineers return/volatility features, checks
+stationarity, applies Fourier-based noise filtering and STFT analysis,
+and trains an XGBoost model to predict next-day price direction.
 """
 
 import os 
@@ -20,24 +22,25 @@ START_DATE = '2020-01-01'
 END_DATE = '2026-01-01'
 OUTPUT_DIR = 'output'
 
+
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # 1. Adquisición de datos y características
+    # 1. Data acquisition and feature engineering
     df = download_price_data(TICKER, START_DATE, END_DATE)
     df = add_returns_and_volatility(df)
 
-    # 2. Comprobación de estacionariedad (Precios brutos vs retornos logarítmicos)
+    # 2. Stationarity check (raw prices vs. log returns)
     adf_test(df["Close"], label=f"Close price ({TICKER})")
     adf_test(df["Returns"], label=f"Log returns ({TICKER})")
 
-    # 3. Autocorrelación de retornoa
+    # 3. Autocorrelation of returns
     plot_acf(df["Returns"], lags=40, zero=False)
     plt.title(f"Return Autocorrelation - {TICKER}")
     plt.savefig(f"{OUTPUT_DIR}/autocorrelation.png")
     plt.close()
 
-    # 4. Espectro de frecuencias de retornos
+    # 4. Frequency spectrum of returns
     freqs, power = power_spectrum(df["Returns"])
     plt.figure(figsize=(10, 4))
     plt.plot(freqs, power)
@@ -48,7 +51,7 @@ def main():
     plt.savefig(f"{OUTPUT_DIR}/power_spectrum.png")
     plt.close()
 
-    # 5. Filtrado de paso bajo de Fourier (eliminando ruido de la serie de precios)
+    # 5. Fourier low-pass filtering (denoising the price series)
     df["Close_Clean"] = low_pass_filter(df["Close"].iloc[:, 0], keep_fraction=0.05)
     plt.figure(figsize=(14, 7))
     plt.plot(df.index, df["Close"], label="Raw Price", color="lightgray", alpha=0.7)
@@ -61,7 +64,7 @@ def main():
     plt.savefig(f"{OUTPUT_DIR}/fourier_filter.png")
     plt.close()
 
-    # 6. Análisis tiempo-frecuencia (espectrograma STFT)
+    # 6. Time-frequency analysis (STFT spectrogram)
     f, dates, power_stft = compute_stft(df["Returns"])
     plt.figure(figsize=(14, 6))
     plt.pcolormesh(dates, f, power_stft, shading="gouraud", cmap="viridis")
@@ -72,7 +75,7 @@ def main():
     plt.savefig(f"{OUTPUT_DIR}/stft_spectrogram.png")
     plt.close()
 
-    # 7. Modelo predictivo (Split cronológico para evitar fugas de datos)
+    # 7. Predictive model (chronological split to avoid data leakage)
     features = feature_matrix(df)
     X_train, X_test, y_train, y_test = chronological_split(features)
     model = train_model(X_train, y_train)

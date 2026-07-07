@@ -3,6 +3,7 @@
 import pandas as pd
 from scipy.signal import stft
 
+
 def compute_stft(returns: pd.Series, nperseg: int = 60, noverlap: int = 50):
     """ Compute the STFT of a return series.
 

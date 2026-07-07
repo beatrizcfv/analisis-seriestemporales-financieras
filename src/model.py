@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report
 from xgboost import XGBClassifier
 
+
 def feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
     """ Assemble the feature matrix and binary target.
 

@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
 
+
 def add_returns_and_volatility(df: pd.DataFrame, price_col: str = 'Close', window: int = 21) -> pd.DataFrame:
     """ Add log returns and rolling volatility to a price DataFrame.
 
