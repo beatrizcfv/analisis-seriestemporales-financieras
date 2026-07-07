@@ -36,7 +36,7 @@ def main():
 
     print("\nSummary (mean accuracy +/- std across folds):")
     for ticker, result in summary.items():
-        print(f"  {ticker}: {result['mean_accuracy']:.4f} +/- {result['std_accuracy']:.4f}")
+        print(f"  {ticker}: {result['mean_accuracy']:.4f}   +/- {result['std_accuracy']:.4f}")
 
 
 if __name__ == "__main__":

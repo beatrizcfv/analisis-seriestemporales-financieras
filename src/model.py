@@ -12,12 +12,12 @@ def feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
     Target: 1 if next day's log return is positive, 0 otherwise.
     """
     features = pd.DataFrame(index=df.index)
-    features["Volatility"] = df["Volatility"].squeeze()
-    features["Trend_Fourier"] = df["Close_Clean"].squeeze()
-    features["Deviation_Fourier"] = df["Close"].squeeze() - df["Close_Clean"].squeeze()
-    features["Return_lag1"] = df["Returns"].squeeze().shift(1)
-    features["Return_lag2"] = df["Returns"].squeeze().shift(2)
-    features["Target"] = np.where(df["Returns"].squeeze().shift(-1) > 0, 1, 0)
+    features['Volatility'] = df['Volatility'].squeeze()
+    features['Trend_Fourier'] = df['Close_Clean'].squeeze()
+    features['Deviation_Fourier'] = df['Close'].squeeze() - df['Close_Clean'].squeeze()
+    features['Return_lag1'] = df['Returns'].squeeze().shift(1)
+    features['Return_lag2'] = df['Returns'].squeeze().shift(2)
+    features['Target'] = np.where(df['Returns'].squeeze().shift(-1) > 0, 1, 0)
     features.dropna(inplace=True)
 
     return features
@@ -55,7 +55,7 @@ def evaluate_model(model: XGBClassifier, X_test: pd.DataFrame, y_test: pd.Series
 
     accuracy = accuracy_score(y_test, y_pred)
     report = classification_report(y_test, y_pred)
-    print(f"Accuracy: {accuracy:.4f}")
+    print(f'Accuracy: {accuracy:.4f}')
     print(report)
 
     return {'accuracy': accuracy, 'report': report}
@@ -78,7 +78,7 @@ def walk_forward_split(features: pd.DataFrame, n_splits: int = 5, min_train_frac
 
     for i in range(n_splits):
         train_end = min_train_size + i * test_size
-        test_end = train_model + test_size if i < n_splits - 1 else n
+        test_end = train_end + test_size if i < n_splits - 1 else n
 
         if train_end >= test_end:
             continue
@@ -101,7 +101,7 @@ def walk_forward_validate(features: pd.DataFrame, n_splits: int = 5, min_train_f
         acc = accuracy_score(y_test, y_pred)
         fold_accuracies.append(acc)
         if verbose:
-            print(f"    Fold {fold}: train={len(X_train)}, test={len(X_test)}, accuracy={acc:.4f}")
+            print(f'    Fold {fold}:    train={len(X_train)},   test={len(X_test)}, accuracy={acc:.4f}')
 
     return {
         "fold_accuracies": fold_accuracies,

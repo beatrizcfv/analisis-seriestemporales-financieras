@@ -28,6 +28,6 @@ def adf_test(series: pd.Series, label: str = "") -> float:
     """
     result = adfuller(series.dropna())
     p_value = result[1]
-    print(f"ADF test [{label}], p-value: {p_value:.4f}")
+    print(f'ADF test [{label}], p-value: {p_value:.4f}')
 
     return p_value
