@@ -59,3 +59,52 @@ def evaluate_model(model: XGBClassifier, X_test: pd.DataFrame, y_test: pd.Series
     print(report)
 
     return {'accuracy': accuracy, 'report': report}
+
+
+def walk_forward_split(features: pd.DataFrame, n_splits: int = 5, min_train_fraction: float = 0.5):
+    """ Generate expanding-window walk-forward train/test splits.
+
+    A single chronological 80/20 split reports accuracy on one test window, which can be lucky or 
+    unlucky. Walk-forward validation trains on an expanding history and evaluates on several 
+    sequential test windows instead, giving a distribution of out-of-sample accuracies rather than
+    a single point estimate.
+    """
+    features_cols = [c for c in features.columns if c != 'Target']
+    X, y = features[features_cols], features['Target']
+
+    n = len(X)
+    min_train_size = int(n * min_train_fraction)
+    test_size = (n - min_train_size) // n_splits
+
+    for i in range(n_splits):
+        train_end = min_train_size + i * test_size
+        test_end = train_model + test_size if i < n_splits - 1 else n
+
+        if train_end >= test_end:
+            continue
+        yield (
+            X.iloc[:train_end],
+            X.iloc[train_end:test_end],
+            y.iloc[:train_end],
+            y.iloc[train_end:test_end],
+        )
+
+
+def walk_forward_validate(features: pd.DataFrame, n_splits: int = 5, min_train_fraction: float = 0.5, verbose: bool = True) -> dict:
+    """ Run walk-forward validation and return per-fold and aggregate accuracy. """
+    fold_accuracies = []
+
+    for fold, (X_train, X_test, y_train, y_test) in enumerate(
+        walk_forward_split(features, n_splits=n_splits, min_train_fraction=min_train_fraction), start=1):
+        model = train_model(X_train, y_train)
+        y_pred = model.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        fold_accuracies.append(acc)
+        if verbose:
+            print(f"    Fold {fold}: train={len(X_train)}, test={len(X_test)}, accuracy={acc:.4f}")
+
+    return {
+        "fold_accuracies": fold_accuracies,
+        "mean_accuracy": float(np.mean(fold_accuracies)),
+        "std_accuracy": float(np.std(fold_accuracies))
+    }

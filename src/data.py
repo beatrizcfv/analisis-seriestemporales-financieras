@@ -5,7 +5,7 @@ import yfinance as yf
 
 
 def download_price_data(ticker: str, start: str, end: str) -> pd.DataFrame:
-    """Download historical OHLCV data for a given ticker from Yahoo Finance.
+    """ Download historical OHLCV data for a given ticker from Yahoo Finance.
 
     ticker : str
         Ticker symbol, e.g. "AAPL".

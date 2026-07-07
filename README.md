@@ -35,9 +35,12 @@ A binary classifier is trained to predict the sign of the next day's return, usi
 
 **Chronological train/test split (80/20)** is used instead of a random split — a random split would leak future information into training, which is invalid for time series and is one of the most common mistakes when applying ML to financial data.
 
+### 6. Robustness checks: walk-forward validation and multiple tickers
+A single chronological 80/20 split reports accuracy on exactly one test window, which can be lucky or unlucky. `validate.py` runs **walk-forward validation**: the training window expands and the model is retrained and re-evaluated across several sequential folds, producing a distribution of out-of-sample accuracies instead of one point estimate. The same procedure is repeated **independently across several tickers** (AAPL, MSFT, SPY by default) to check whether the edge generalizes beyond a single stock or is an artifact of that specific series.
+
 ## Results
 
-On AAPL daily data (2020–2026), the model reaches roughly **55% accuracy** on the out-of-sample chronological test set. In isolation, that number looks unimpressive — but in the context of daily equity price direction it is a modest, plausible edge rather than a red flag: financial markets have a low signal-to-noise ratio and are close to (though not perfectly) efficient, so accuracy much higher than 50–55% on a simple feature set is more often a sign of a leakage bug than genuine skill. The purpose of this project is the methodology (stationarity testing, leakage-free evaluation, frequency-domain feature engineering), not a claim that this model is trade-ready.
+On AAPL daily data (2020–2026), the model reaches roughly **55% accuracy** on a single out-of-sample chronological test set, and a comparable range once validated with walk-forward folds. In isolation, that number looks unimpressive — but in the context of daily equity price direction it is a modest, plausible edge rather than a red flag: financial markets have a low signal-to-noise ratio and are close to (though not perfectly) efficient, so accuracy much higher than 50–55% on a simple feature set is more often a sign of a leakage bug than genuine skill. The purpose of this project is the methodology (stationarity testing, leakage-free evaluation, frequency-domain feature engineering, walk-forward robustness checks), not a claim that this model is trade-ready.
 
 ## Project structure
 
@@ -46,15 +49,16 @@ analisis-seriestemporales-financieras/
 ├── README.md
 ├── requirements.txt
 ├── main.py                  # runs the full pipeline end-to-end, saves plots to output/
+├── validate.py              # walk-forward validation across multiple tickers (robustness check)
 ├── src/
-│   ├── data.py               # price data download (yfinance)
-│   ├── features.py           # returns, rolling volatility, ADF test
-│   ├── fourier.py             # FFT power spectrum, low-pass denoising filter
-│   ├── spectral.py             # STFT time-frequency analysis
-│   └── model.py                # feature matrix, chronological split, XGBoost training/eval
+│   ├── data.py              # price data download (yfinance)
+│   ├── features.py          # returns, rolling volatility, ADF test
+│   ├── fourier.py           # FFT power spectrum, low-pass denoising filter
+│   ├── spectral.py          # STFT time-frequency analysis
+│   └── model.py             # feature matrix, chronological split, walk-forward validation, XGBoost training/eval
 ├── notebooks/
-│   └── analysis.ipynb         # interactive, step-by-step walkthrough with plots
-└── output/                     # generated plots (created when main.py runs)
+│   └── analysis.ipynb       # interactive, step-by-step walkthrough with plots
+└── output/                  # generated plots (created when main.py runs)
 ```
 
 ## How to run
@@ -73,7 +77,13 @@ python main.py
 
 This downloads AAPL data, runs the full analysis, prints the ADF and model evaluation results to the console, and saves all plots to `output/`.
 
-Alternatively, open `notebooks/analysis.ipynb` to run the same pipeline interactively, cell by cell, with inline plots.
+To check the robustness of the predictive model with walk-forward validation across AAPL, MSFT and SPY:
+
+```bash
+python validate.py
+```
+
+Alternatively, open `notebooks/analysis.ipynb` to run the single-ticker pipeline interactively, cell by cell, with inline plots.
 
 ## Tech stack
 
@@ -81,9 +91,10 @@ Python · pandas · NumPy · yfinance · statsmodels · SciPy (FFT, STFT) · XGB
 
 ## Limitations and possible extensions
 
-- The model uses a single ticker and a fixed set of features; it is a methodological baseline, not a production trading strategy.
-- No transaction costs, slippage, or position sizing are modeled — the 55% accuracy figure says nothing about whether the signal would be profitable after costs.
-- Next steps to build on this: extending the STFT/wavelet analysis into explicit trading rules, testing across multiple tickers and asset classes, and adding walk-forward validation instead of a single chronological split.
+- The model uses a fixed, fairly small set of features; it is a methodological baseline, not a production trading strategy.
+- No transaction costs, slippage, or position sizing are modeled — the accuracy figures say nothing about whether the signal would be profitable after costs.
+- `validate.py` covers three tickers (AAPL, MSFT, SPY); extending it to more assets and asset classes (FX, commodities, crypto) would give a stronger generalization check.
+- A natural next step is turning the STFT/Fourier-denoised trend into explicit trading rules and backtesting them with realistic costs, rather than only reporting classification accuracy.
 
 ## Disclaimer
 

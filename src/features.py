@@ -21,7 +21,7 @@ def add_returns_and_volatility(df: pd.DataFrame, price_col: str = 'Close', windo
 
 
 def adf_test(series: pd.Series, label: str = "") -> float:
-    """Run an Augmented Dickey-Fuller test and return the p-value.
+    """ Run an Augmented Dickey-Fuller test and return the p-value.
 
     p-value < 0.05 lets us reject the null hypothesis of a unit root,
     i.e. the series can be treated as stationary.
