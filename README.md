@@ -2,15 +2,15 @@
 
 This is an independent project applying signal processing and machine learning techniques to financial time series, using Apple (AAPL) daily price data as a case study.
 
-The goal is to go from raw, noisy price data to: (1) a statistically sound description of its stationarity and cyclical structure, (2) a baseline machine learning model for next-day price direction, built with methodology that avoids the most common time-series pitfalls (data leakage and use of non-stationary inputs).
+The goal is to go from raw, noisy price data to: (1) a statistically sound description of its stationarity and cyclical structure and (2) a baseline machine learning model for next-day price direction, built with methodology that avoids the most common time-series pitfalls (data leakage and use of non-stationary inputs).
 
 ## Overview
 
 Financial price series are noisy and non-stationary, which makes them hard to model directly. This project addresses that in three stages:
 
-1. **Statistical characterization** — transform prices into log returns and volatility, and formally test for stationarity.
-2. **Signal processing** — move from the time domain to the frequency domain (Fourier Transform) to separate signal from noise, and use a time-frequency method (STFT) to see how dominant cycles shift over time.
-3. **Predictive modeling** — use the engineered features (volatility, denoised trend, lagged returns) to train a binary classifier (XGBoost) that predicts whether the next day's return will be positive or negative.
+1. **Statistical characterization**: transform prices into log returns and volatility, and formally test for stationarity.
+2. **Signal processing**: move from the time domain to the frequency domain (Fourier Transform) to separate signal from noise, and use a time-frequency method (STFT) to see how dominant cycles shift over time.
+3. **Predictive modeling**: use the engineered features (volatility, denoised trend, lagged returns) to train a binary classifier (XGBoost) that predicts whether the next day's return will be positive or negative.
 
 ## Methodology
 
@@ -24,7 +24,7 @@ The ADF test is used to formally check whether a series is stationary (p-value <
 The Fast Fourier Transform decomposes the return series into its constituent frequencies, producing a power spectrum that highlights which cycle lengths carry the most energy. This spectrum drives a **low-pass filter**: high frequencies (short-term noise) are zeroed out and the signal is reconstructed with the inverse FFT, producing a denoised trend line for the price series.
 
 ### 4. Time-frequency analysis (STFT)
-Market regimes change over time, so a single FFT over the whole history hides when a given cycle was active. The **Short-Time Fourier Transform** applies the FFT over a sliding window, producing a spectrogram that shows how the dominant frequencies (and therefore volatility regimes) evolve through time.
+Market regimes change over time, so a single FFT over the whole history hides when a given cycle was active. The **Short-Time Fourier Transform** applies the FFT over a sliding window, producing a spectrogram that shows how the dominant frequencies (and therefore volatility regimes) evolve over time.
 
 ### 5. Predictive model (XGBoost)
 A binary classifier is trained to predict the sign of the next day's return, using:
@@ -33,10 +33,10 @@ A binary classifier is trained to predict the sign of the next day's return, usi
 - Deviation of the raw price from that trend
 - Returns lagged 1 and 2 days
 
-**Chronological train/test split (80/20)** is used instead of a random split, which would leak future information into training, which is invalid for time series and is one of the most common mistakes when applying ML to financial data.
+**Chronological train/test split (80/20)** is used instead of a random split, as it would leak future information into training, which is invalid for time series and is one of the most common mistakes when applying ML to financial data.
 
 ### 6. Robustness checks: walk-forward validation and multiple tickers
-A single chronological 80/20 split reports accuracy on exactly one test window, which can be lucky or unlucky. `validate.py` runs **walk-forward validation**: the training window expands and the model is retrained and re-evaluated across several sequential folds, producing a distribution of out-of-sample accuracies instead of one point estimate. The same procedure is repeated **independently across several tickers** (AAPL, MSFT, SPY by default) to check whether the edge generalizes beyond a single stock or is an artifact of that specific series.
+A single chronological 80/20 split reports accuracy on exactly one test window, lucky or unlucky. `validate.py` runs **walk-forward validation**: the training window expands and the model is retrained and re-evaluated across several sequential folds, producing a distribution of out-of-sample accuracies instead of one point estimate. The same procedure is repeated **independently across several tickers** (AAPL, MSFT, SPY by default) to check whether the edge generalizes beyond a single stock or is an artifact of that specific series.
 
 ## Results
 
@@ -68,7 +68,7 @@ analisis-seriestemporales-financieras/
 git clone https://github.com/beatrizcfv/analisis-seriestemporales-financieras.git
 cd analisis-seriestemporales-financieras
 
-# 2. Install dependencies (a virtual environment is recommended)
+# 2. Install dependencies
 pip install -r requirements.txt
 
 # 3. Run the full pipeline
